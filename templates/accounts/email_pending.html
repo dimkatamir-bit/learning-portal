@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Подтвердите email · Learning Portal{% endblock %}
+{% block content %}
+<section class="card result-card">
+  <div class="result-mark" aria-hidden="true">@</div>
+  <span class="eyebrow text-primary">ЕЩЁ ОДИН ШАГ</span>
+  <h1>Подтвердите вашу почту</h1>
+  <p class="result-lead">Откройте письмо для <strong>{{ user.email }}</strong>, перейдите по ссылке и нажмите «Подтвердить email». После этого откроются курсы.</p>
+  <div class="exam-hint text-start"><p>Ссылка действует 24 часа. Если письма нет, проверьте папку «Спам». Повторная отправка доступна через минуту.</p></div>
+  <form method="post" action="{% url 'resend_verification' %}">{% csrf_token %}<button class="btn btn-primary btn-lg">Отправить письмо повторно</button></form>
+  <p class="small text-muted mt-3 mb-0">Ошиблись в адресе? Выйдите из аккаунта и зарегистрируйтесь с правильным email.</p>
+</section>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Подтверждение email · Learning Portal{% endblock %}
+{% block content %}
+<section class="card result-card">
+  <div class="result-mark" aria-hidden="true">@</div>
+  <span class="eyebrow text-primary">ПОДТВЕРЖДЕНИЕ EMAIL</span>
+  {% if invalid %}<h1>Ссылка недействительна</h1><p class="result-lead">Она истекла, уже использована или адрес аккаунта изменился. Войдите в аккаунт: если почта не подтверждена, можно запросить новое письмо.</p><a class="btn btn-primary btn-lg" href="{% url 'home' %}">Перейти к аккаунту</a>
+  {% else %}<h1>Подтвердите email</h1><p class="result-lead">Подтвердите, что адрес <strong>{{ confirmation_email }}</strong> принадлежит вам.</p><form method="post">{% csrf_token %}<button class="btn btn-primary btn-lg">Подтвердить email</button></form>{% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Тест · Learning Portal{% endblock %}
+{% block content %}
+<nav aria-label="Навигация" class="breadcrumb-line"><a href="{% url 'course_detail' exam.course_id %}">Программа курса</a><span aria-hidden="true">/</span><span>Проверка знаний</span></nav>
+<header class="exam-heading"><span class="eyebrow text-primary">ПРОВЕРКА ЗНАНИЙ</span><h1>{% if exam.is_final %}Финальный экзамен{% else %}Тест по модулю{% endif %}</h1>{% if not exam.is_final %}<p class="exam-subtitle">{{ exam.module.title }}</p>{% endif %}<div class="exam-meta"><span>{{ questions|length }} вопросов</span><span>Проходной балл {{ exam.passing_score }}%</span><span>Повторная попытка доступна</span></div></header>
+<div class="exam-hint" role="note"><span class="hint-symbol" aria-hidden="true">i</span><p>Отметьте все верные ответы в каждом вопросе. В некоторых вопросах правильных вариантов может быть несколько.</p></div>
+{% for error in errors %}<div class="alert alert-danger" role="alert">{{ error }}</div>{% endfor %}
+<form method="post" class="exam-form">{% csrf_token %}
+  {% for question in questions %}<fieldset class="card exam-question"><legend><span class="question-number">{{ forloop.counter|stringformat:'02d' }}</span>{{ question.text }}</legend>
+    <div class="answer-options">{% for choice in question.shuffled_choices %}<label class="choice-row"><input class="form-check-input" type="checkbox" name="question_{{ question.pk }}" value="{{ choice.pk }}" {% if choice.selected %}checked{% endif %}><span>{{ choice.text }}</span></label>{% endfor %}</div>
+  </fieldset>{% endfor %}
+  <div class="exam-submit"><div><strong id="answer-count" aria-live="polite">Отвечено: 0 из {{ questions|length }}</strong><small>Проверьте ответы перед отправкой</small></div><button class="btn btn-primary btn-lg">Проверить ответы <span aria-hidden="true">→</span></button></div>
+</form>
+{% endblock %}
+{% block scripts %}<script>
+const form = document.querySelector('.exam-form');
+const cards = Array.from(form.querySelectorAll('.exam-question'));
+function updateCount() {
+  const answered = cards.filter(card => card.querySelector('input:checked')).length;
+  document.getElementById('answer-count').textContent = 'Отвечено: ' + answered + ' из ' + cards.length;
+}
+form.addEventListener('change', updateCount);
+updateCount();
+</script>{% endblock %}

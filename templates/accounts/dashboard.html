@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Личный кабинет · Learning Portal{% endblock %}
+{% block content %}
+<div class="page-kicker">ЛИЧНЫЙ КАБИНЕТ <span>·</span> ОБУЧЕНИЕ</div>
+<section class="dashboard-hero hero" aria-labelledby="dashboard-title">
+  <div class="dashboard-hero-content">
+    <span class="hero-label">РАДЫ ВАС ВИДЕТЬ</span>
+    <h1 id="dashboard-title">Здравствуйте, {{ user.first_name|default:user.email }}!</h1>
+    <p>Продолжайте обучение с того места, где остановились. Всё важное — на этой странице.</p>
+    <a class="btn btn-light btn-lg" href="#my-courses">Перейти к курсам <span aria-hidden="true">→</span></a>
+  </div>
+  <div class="hero-orbit" aria-hidden="true"><span>ЗНАНИЯ</span><strong>→</strong><span>РЕЗУЛЬТАТ</span></div>
+</section>
+<div class="overview-grid" aria-label="Сводка обучения">
+  <div class="overview-card"><span class="overview-icon">01</span><span class="overview-label">Доступно курсов</span><strong>{{ course_cards|length }}</strong></div>
+  <div class="overview-card"><span class="overview-icon">02</span><span class="overview-label">Сертификатов</span><strong>{{ certificates|length }}</strong></div>
+  <div class="overview-card overview-stage"><span class="overview-icon">↗</span><span class="overview-label">Ваш текущий этап</span><strong>{{ user.current_stage|default:'Выберите курс для начала обучения' }}</strong></div>
+</div>
+<section id="my-courses" class="section-block" aria-labelledby="courses-title">
+  <div class="section-heading"><div><span class="eyebrow text-primary">ВАША ПРОГРАММА</span><h2 id="courses-title">Мои курсы</h2><p>Материалы и тесты открываются последовательно.</p></div><a href="{% url 'course_list' %}" class="section-link">Все курсы <span aria-hidden="true">→</span></a></div>
+  <div class="row g-4">
+    {% for course, progress in course_cards %}<div class="col-lg-6"><article class="card course-card h-100">
+      <div class="course-card-top"><span class="card-label">КУРС · {{ course.module_total }} МОДУЛЕЙ</span><span class="percent-chip">{{ progress }}%</span></div>
+      <h3>{{ course.title }}</h3><p class="course-summary">{{ course.description|truncatewords:28 }}</p>
+      <div class="course-card-footer"><div class="d-flex justify-content-between small fw-semibold mb-2"><span>Пройдено модулей</span><span>{{ course.module_passed }} из {{ course.module_total }}</span></div><div class="progress" role="progressbar" aria-label="Прогресс курса {{ course.title }}" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width:{{ progress }}%"></div></div><a class="btn btn-primary w-100 mt-4" href="{% url 'course_detail' course.pk %}">{% if progress == 100 %}Открыть результаты{% elif progress %}Продолжить обучение{% else %}Начать обучение{% endif %} <span aria-hidden="true">→</span></a></div>
+    </article></div>{% empty %}<div class="col-12"><div class="empty-state"><span class="empty-icon" aria-hidden="true">◈</span><h3>Пока нет доступных курсов</h3><p>Когда администратор добавит обучение, оно появится здесь.</p></div></div>{% endfor %}
+  </div>
+</section>
+<section class="section-block" aria-labelledby="certificates-title">
+  <div class="section-heading"><div><span class="eyebrow text-primary">ВАШИ ДОСТИЖЕНИЯ</span><h2 id="certificates-title">Сертификаты</h2><p>Готовые документы можно скачать в любое время.</p></div></div>
+  <div class="card certificates-card">
+    {% for certificate in certificates %}<div class="certificate-row"><div class="certificate-seal" aria-hidden="true">✓</div><div class="flex-grow-1"><strong>{{ certificate.course.title }}</strong><span>№ {{ certificate.certificate_number }} · {{ certificate.issued_date|date:'d.m.Y' }}</span></div><a class="btn btn-outline-primary" href="{% url 'certificate_download' certificate.uuid %}">Скачать PDF</a></div>
+    {% empty %}<div class="empty-inline"><span class="empty-icon" aria-hidden="true">◇</span><div><strong>Здесь появится ваш первый сертификат</strong><p>Сдайте тесты по всем модулям и финальный экзамен.</p></div></div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

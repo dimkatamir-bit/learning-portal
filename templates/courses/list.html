@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Каталог курсов · Learning Portal{% endblock %}
+{% block content %}
+<div class="page-kicker">ОБУЧЕНИЕ <span>·</span> КАТАЛОГ</div>
+<header class="page-heading"><div><span class="eyebrow text-primary">ПРОГРАММЫ ОБУЧЕНИЯ</span><h1>Каталог курсов</h1><p>Выберите курс, чтобы посмотреть программу и начать обучение.</p></div><span class="count-pill">{{ course_cards|length }} {% if course_cards|length == 1 %}курс{% else %}курсов{% endif %}</span></header>
+<div class="row g-4">
+  {% for course, progress in course_cards %}<div class="col-lg-6"><article class="card course-card h-100"><div class="course-card-top"><span class="card-label">ПРОГРАММА · {{ course.module_total }} МОДУЛЕЙ</span><span class="percent-chip">{{ progress }}%</span></div><h2>{{ course.title }}</h2><p class="course-summary">{{ course.description|truncatewords:38 }}</p><div class="course-card-footer"><div class="d-flex justify-content-between small fw-semibold mb-2"><span>Ваш прогресс</span><span>{{ course.module_passed }} из {{ course.module_total }}</span></div><div class="progress" role="progressbar" aria-label="Прогресс курса {{ course.title }}" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width:{{ progress }}%"></div></div><a class="btn btn-primary w-100 mt-4" href="{% url 'course_detail' course.pk %}">{% if progress %}Открыть курс{% else %}Смотреть программу{% endif %} <span aria-hidden="true">→</span></a></div></article></div>
+  {% empty %}<div class="col-12"><div class="empty-state"><span class="empty-icon" aria-hidden="true">◈</span><h2 class="h4">Курсы пока не добавлены</h2><p>Вернитесь позже или обратитесь к администратору.</p></div></div>{% endfor %}
+</div>
+{% endblock %}

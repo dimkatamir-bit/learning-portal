@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block title %}Проверка сертификата · Learning Portal{% endblock %}
+{% block content %}
+<div class="verify-layout"><div class="card verify-card"><div class="verify-header"><span class="verify-seal" aria-hidden="true">✓</span><span class="eyebrow text-primary">ПРОВЕРКА ПОДЛИННОСТИ</span><h1>Сертификат подлинный</h1><p>Запись найдена в системе Learning Portal.</p></div><dl class="verify-details"><div><dt>Сотрудник</dt><dd>{{ certificate.user.get_full_name|default:certificate.user.email }}</dd></div><div><dt>Курс</dt><dd>{{ certificate.course.title }}</dd></div><div><dt>Дата выдачи</dt><dd>{{ certificate.issued_date|date:'d.m.Y' }}</dd></div><div><dt>Номер сертификата</dt><dd>{{ certificate.certificate_number }}</dd></div></dl><div class="verify-footer">Данные подтверждены записью в реестре сертификатов.</div></div></div>
+{% endblock %}

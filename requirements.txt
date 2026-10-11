@@ -1,0 +1,5 @@
+Django==5.2.17
+WeasyPrint==70.0
+qrcode[pil]==8.2
+waitress==3.0.2
+whitenoise==6.12.0

@@ -1,0 +1,11 @@
+{% extends 'admin/base_site.html' %}
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Главная</a> › Прогресс сотрудников</div>{% endblock %}
+{% block content %}
+<p class="portal-admin-tip">Один сотрудник — одна строка. Процент считается по сданным тестам модулей: 4 из 5 = 80%. Нажмите на сотрудника, чтобы открыть подробности.</p>
+<form method="get" class="employee-progress-filters"><label for="progress-search">Поиск сотрудника <input id="progress-search" type="search" name="q" value="{{ query }}" placeholder="Имя, фамилия или email"></label><label for="progress-course">Курс <select id="progress-course" name="course"><option value="">Все курсы</option>{% for course in filter_courses %}<option value="{{ course.pk }}" {% if selected_course == course.pk %}selected{% endif %}>{{ course.title }}</option>{% endfor %}</select></label><button type="submit" class="button">Найти</button><a href="{% url 'admin:courses_userprogress_changelist' %}">Сбросить</a></form>
+<div class="employee-progress-table"><table><thead><tr><th>Сотрудник</th><th>Страна</th><th>Прогресс по курсам</th></tr></thead><tbody>
+{% for row in rows %}<tr data-employee-id="{{ row.employee.pk }}"><td><a class="employee-progress-name" href="{% url 'admin:progress_employee_detail' row.employee.pk %}">{{ row.employee.get_full_name|default:row.employee.email }}</a><div class="employee-progress-note">{{ row.employee.email }}</div><div class="employee-progress-note">{{ row.employee.current_stage|default:'Обучение начато' }}</div></td><td>{{ row.employee.country|default:'—' }}</td><td>{% for summary in row.courses %}{% include 'admin/courses/progress_bar.html' %}{% endfor %}</td></tr>
+{% empty %}<tr><td colspan="3">Сотрудники с начатым обучением не найдены.</td></tr>{% endfor %}
+</tbody></table></div>
+<div class="employee-progress-pagination"><span>Сотрудников: {{ page_obj.paginator.count }} · Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_previous %}<a href="?{{ pagination_query }}&page={{ page_obj.previous_page_number }}">← Назад</a>{% endif %}{% if page_obj.has_next %}<a href="?{{ pagination_query }}&page={{ page_obj.next_page_number }}">Далее →</a>{% endif %}</div>
+{% endblock %}

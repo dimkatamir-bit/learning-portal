@@ -1,0 +1,42 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102f3b">
+  <title>{% block title %}Learning Portal{% endblock %}</title>
+  <link href="{% static 'vendor/bootstrap/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/portal.css' %}" rel="stylesheet">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Перейти к содержимому</a>
+  <header class="site-header">
+    <nav class="navbar navbar-expand-md" aria-label="Основная навигация">
+      <div class="container portal-container">
+        <a class="navbar-brand brand" href="{% url 'home' %}" aria-label="Learning Portal — главная"><span class="brand-mark" aria-hidden="true">L</span><span>Learning <span class="brand-accent">Portal</span><small>ЦЕНТР ОБУЧЕНИЯ</small></span></a>
+        {% if user.is_authenticated %}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#portalNav" aria-controls="portalNav" aria-expanded="false" aria-label="Открыть меню"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="portalNav">
+          <div class="navbar-nav ms-auto align-items-md-center gap-md-2">
+            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}>Мой кабинет</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'course_list' %}active{% endif %}" href="{% url 'course_list' %}" {% if request.resolver_match.url_name == 'course_list' %}aria-current="page"{% endif %}>Курсы</a>
+            {% if user.is_staff %}<a class="nav-link" href="{% url 'admin:index' %}">Управление</a>{% endif %}
+            <div class="nav-divider d-none d-md-block" aria-hidden="true"></div>
+            <span class="user-chip d-none d-lg-inline-flex" title="{{ user.email }}">{{ user.first_name|default:user.email|truncatechars:16 }}</span>
+            <form method="post" action="{% url 'logout' %}" class="nav-logout">{% csrf_token %}<button class="btn btn-outline-light btn-sm">Выйти</button></form>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
+  <main id="main-content" class="container portal-container page-content">
+    {% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}" role="alert">{{ message }}</div>{% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer"><div class="container portal-container d-flex flex-wrap justify-content-between gap-2"><span>Learning Portal · Обучение сотрудников</span><span>Курсы · Проверка знаний · Сертификаты</span></div></footer>
+  <script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

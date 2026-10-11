@@ -1,0 +1,13 @@
+{% extends 'admin/index.html' %}
+{% block content %}
+<section class="portal-admin-intro"><span class="portal-admin-kicker">УПРАВЛЕНИЕ ОБУЧЕНИЕМ</span><h2>Рабочий кабинет администратора</h2><p>Добавляйте материалы, настраивайте тесты и следите за результатами сотрудников.</p>
+<div class="portal-admin-shortcuts">
+{% if perms.accounts.view_user %}<a href="{% url 'admin:accounts_user_changelist' %}"><strong>Сотрудники →</strong><span>Поиск, доступ и прогресс</span></a>{% endif %}
+{% if perms.courses.view_course %}<a href="{% url 'admin:courses_course_changelist' %}"><strong>Курсы →</strong><span>Программа и модули</span></a>{% endif %}
+{% if perms.exams.view_exam %}<a href="{% url 'admin:exams_exam_changelist' %}"><strong>Тесты →</strong><span>Вопросы и готовность</span></a>{% endif %}
+{% if perms.certificates.view_certificate %}<a href="{% url 'admin:certificates_certificate_changelist' %}"><strong>Сертификаты →</strong><span>Выдача и подлинность</span></a>{% endif %}
+</div>
+<p class="portal-admin-tip"><strong>Как добавить обучение:</strong> создайте курс → добавьте модули → создайте тесты → сохраните вопросы → откройте «Изменить» у вопроса и добавьте варианты ответов. Перед запуском проверьте статус «Готов к прохождению».</p>
+</section>
+{{ block.super }}
+{% endblock %}

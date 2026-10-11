@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.title }} · Learning Portal{% endblock %}
+{% block content %}
+<nav aria-label="Навигация" class="breadcrumb-line"><a href="{% url 'dashboard' %}">Мой кабинет</a><span aria-hidden="true">/</span><span>Программа курса</span></nav>
+<section class="hero course-hero">
+  <span class="eyebrow">ПРОГРАММА ОБУЧЕНИЯ</span>
+  <h1 class="mt-2">{{ course.title }}</h1>
+  <p class="hero-description">{{ course.description }}</p>
+  <div class="d-flex flex-wrap align-items-center gap-3 mt-4">
+    {% if certificate and certificate.pdf_file %}<a class="btn btn-light btn-lg" href="{% url 'certificate_download' certificate.uuid %}">Скачать сертификат</a>
+    {% elif next_module %}<a class="btn btn-light btn-lg" href="{% url 'module_detail' next_module.pk %}">{% if progress %}Продолжить обучение{% else %}Начать курс{% endif %} →</a>
+    {% elif final_exam and final_available %}<a class="btn btn-light btn-lg" href="{% url 'take_exam' final_exam.pk %}">Перейти к финальному экзамену →</a>{% endif %}
+    <span>{{ completed_count }} из {{ course.module_total }} модулей пройдено</span>
+  </div>
+  <div class="progress mt-4 course-progress" role="progressbar" aria-label="Прогресс курса" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width:{{ progress }}%"></div></div>
+</section>
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="section-heading compact"><div><span class="eyebrow text-primary">ШАГ ЗА ШАГОМ</span><h2 class="h3">Программа курса</h2></div><span class="count-pill">{{ completed_count }} / {{ course.module_total }}</span></div>
+    <div class="module-list">
+      {% for row in module_rows %}
+      <article class="module-row card mb-3 {% if row.locked %}module-locked{% elif row.passed %}module-done{% else %}module-current{% endif %}">
+        <div class="d-flex align-items-start gap-3">
+          <span class="module-index">{{ row.module.order }}</span>
+          <div class="flex-grow-1">
+            <h3 class="h5 mb-2">{{ row.module.title }}</h3>
+            <p class="text-muted mb-3">{% if row.passed %}Материал изучен · тест сдан{% elif row.locked %}Откроется после предыдущего теста{% else %}Доступен сейчас · изучите материал и сдайте тест{% endif %}</p>
+            {% if row.locked %}<span class="badge text-bg-light border">Закрыт</span>
+            {% else %}<a class="btn {% if row.passed %}btn-outline-primary{% else %}btn-primary{% endif %}" href="{% url 'module_detail' row.module.pk %}">{% if row.passed %}Повторить материал{% else %}Открыть модуль{% endif %}</a>{% endif %}
+          </div>
+          {% if row.passed %}<span class="state-pill done">✓ Готово</span>{% elif not row.locked %}<span class="state-pill current">Сейчас</span>{% endif %}
+        </div>
+      </article>
+      {% empty %}<div class="card p-4">Модули пока не добавлены.</div>{% endfor %}
+    </div>
+  </div>
+  <aside class="col-lg-4">
+    <div class="card side-card sticky-lg-top">
+      <span class="eyebrow text-primary">ЗАВЕРШЕНИЕ КУРСА</span><h2 class="h4 mt-2">Финальный экзамен</h2>
+      <p class="text-muted">Он откроется после сдачи тестов всех модулей.</p>
+      {% if certificate and certificate.pdf_file %}<div class="alert alert-success">Курс завершён. Сертификат готов.</div><a href="{% url 'certificate_download' certificate.uuid %}" class="btn btn-primary">Скачать PDF</a>
+      {% elif final_passed %}<div class="alert alert-warning">Экзамен сдан, PDF пока не создан.</div><form method="post" action="{% url 'certificate_retry' course.pk %}">{% csrf_token %}<button class="btn btn-primary">Повторить выдачу</button></form>
+      {% elif final_exam and final_available %}<a href="{% url 'take_exam' final_exam.pk %}" class="btn btn-primary">Начать экзамен</a>
+      {% elif final_exam %}<span class="badge text-bg-light border">Пока закрыт</span>
+      {% else %}<p class="text-muted mb-0">Экзамен пока не добавлен.</p>{% endif %}
+    </div>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Вход и регистрация · Learning Portal{% endblock %}
+{% block content %}
+<div class="auth-layout">
+  <section class="auth-story" aria-labelledby="welcome-title">
+    <span class="eyebrow">ОБУЧЕНИЕ СОТРУДНИКОВ</span>
+    <h1 id="welcome-title">Знания, которые остаются с вами.</h1>
+    <p class="auth-lead">Изучайте материалы в удобном темпе, проходите проверку знаний и получайте подтверждение результата.</p>
+    <div class="auth-steps" aria-label="Как проходит обучение">
+      <div><span class="step-number">01</span><span><strong>Изучайте</strong><small>Уроки и видео по порядку</small></span></div>
+      <div><span class="step-number">02</span><span><strong>Проверяйте себя</strong><small>Тест после каждого модуля</small></span></div>
+      <div><span class="step-number">03</span><span><strong>Подтверждайте результат</strong><small>Сертификат после финального экзамена</small></span></div>
+    </div>
+    <div class="auth-story-foot">Ваш прогресс сохраняется в личном кабинете.</div>
+  </section>
+  <section class="auth-form-card card form-panel" aria-label="Вход в систему">
+    <div class="form-heading"><span class="eyebrow text-primary">ЛИЧНЫЙ КАБИНЕТ</span><h2>Начните обучение</h2><p>Создайте аккаунт или войдите, если уже зарегистрированы.</p></div>
+    {% if rate_limit_error %}<div class="alert alert-warning" role="alert">{{ rate_limit_error }}</div>{% endif %}
+    <ul class="nav nav-pills auth-tabs" id="authTabs" role="tablist">
+      <li class="nav-item" role="presentation"><button class="nav-link {% if active_tab == 'register' %}active{% endif %}" id="registerTab" data-bs-toggle="pill" data-bs-target="#registerPane" type="button" role="tab" aria-controls="registerPane" aria-selected="{% if active_tab == 'register' %}true{% else %}false{% endif %}">Регистрация</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link {% if active_tab == 'login' %}active{% endif %}" id="loginTab" data-bs-toggle="pill" data-bs-target="#loginPane" type="button" role="tab" aria-controls="loginPane" aria-selected="{% if active_tab == 'login' %}true{% else %}false{% endif %}">Вход</button></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane fade {% if active_tab == 'register' %}show active{% endif %}" id="registerPane" role="tabpanel" aria-labelledby="registerTab" tabindex="0">
+        <form method="post" action="{% url 'register' %}">{% csrf_token %}
+          {% if registration_form.non_field_errors %}<div class="alert alert-danger">{{ registration_form.non_field_errors }}</div>{% endif %}
+          <div class="row g-3">
+          {% for field in registration_form %}<div class="{% if field.name == 'first_name' or field.name == 'last_name' %}col-sm-6{% else %}col-12{% endif %}"><label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>{{ field }}{{ field.errors }}{% if field.help_text %}<span class="helptext">{{ field.help_text|striptags }}</span>{% endif %}</div>{% endfor %}
+          </div>
+          <button class="btn btn-primary btn-lg w-100 mt-4">Создать аккаунт <span aria-hidden="true">→</span></button>
+        </form>
+      </div>
+      <div class="tab-pane fade {% if active_tab == 'login' %}show active{% endif %}" id="loginPane" role="tabpanel" aria-labelledby="loginTab" tabindex="0">
+        <form method="post" action="{% url 'login' %}">{% csrf_token %}
+          {% if login_form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ login_form.non_field_errors }}</div>{% endif %}
+          {% for field in login_form %}<div class="mb-3"><label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endfor %}
+          <button class="btn btn-primary btn-lg w-100 mt-2">Войти в кабинет <span aria-hidden="true">→</span></button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

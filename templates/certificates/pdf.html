@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page { size: A4 landscape; margin: 0; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { font-family: "DejaVu Sans", Arial, sans-serif; color: #102537; }
+    .page { position: relative; width: 297mm; height: 210mm; overflow: hidden; background: #fff; }
+    .panel { position: absolute; inset: 0 auto 0 0; width: 83mm; background: #10283c; color: white; overflow: hidden; }
+    .panel-edge { position: absolute; top: 0; right: 0; width: 2mm; height: 210mm; background: #b8e986; }
+    .mark { position: absolute; top: 18mm; left: 13mm; width: 55mm; font-size: 19pt; font-weight: 700; letter-spacing: .2mm; line-height: 1.15; }
+    .mark-caption { position: absolute; top: 30mm; left: 13mm; font-size: 7.2pt; letter-spacing: 1.4mm; color: #c5d8df; }
+    .panel-rule { position: absolute; top: 45mm; left: 13mm; width: 54mm; border-top: .35mm solid #537387; }
+    .circle-a, .circle-b { position: absolute; border: .7mm solid #456475; border-radius: 50%; }
+    .circle-a { top: 50mm; left: -37mm; width: 125mm; height: 125mm; }
+    .circle-b { top: 66mm; left: -21mm; width: 93mm; height: 93mm; border-color: #819bac; }
+    .circle-c { position: absolute; top: 86mm; left: -.5mm; width: 53mm; height: 53mm; border-radius: 50%; background: #b8e986; }
+    .circle-d { position: absolute; top: 99mm; left: 12.5mm; width: 27mm; height: 27mm; border-radius: 50%; background: #10283c; }
+    .panel-bottom { position: absolute; left: 13mm; bottom: 24mm; font-size: 8pt; letter-spacing: 1mm; color: #c5d8df; }
+    .panel-serial { position: absolute; left: 13mm; bottom: 16mm; font-size: 10pt; font-weight: 700; color: #b8e986; letter-spacing: .5mm; }
+    .content { position: absolute; top: 0; left: 83mm; width: 214mm; height: 210mm; }
+    .kicker { position: absolute; top: 18mm; left: 16mm; font-size: 8pt; font-weight: 700; letter-spacing: 1.4mm; color: #4f6875; }
+    .badge { position: absolute; right: 15mm; top: 15mm; border: .3mm solid #cad8d8; border-radius: 10mm; padding: 2.1mm 4.5mm 2.4mm; font-size: 7.5pt; font-weight: 700; letter-spacing: .25mm; color: #31536b; }
+    .badge-dot { display: inline-block; width: 2mm; height: 2mm; margin-right: 2mm; border-radius: 50%; background: #6aa47b; }
+    .header-rule { position: absolute; left: 16mm; top: 34mm; width: 183mm; border-top: .3mm solid #e1e9e8; }
+    h1 { position: absolute; left: 15mm; top: 44mm; margin: 0; font-size: 34pt; letter-spacing: -.5mm; line-height: 1.15; font-weight: 700; color: #10283c; }
+    .lead { position: absolute; left: 16mm; top: 68mm; font-size: 10pt; color: #607682; }
+    .accent { position: absolute; left: 16mm; top: 95mm; width: 1.4mm; height: 34mm; border-radius: 1mm; background: #9bc96d; }
+    .label { font-size: 8pt; letter-spacing: .9mm; font-weight: 700; color: #687d87; text-transform: uppercase; }
+    .person-label { position: absolute; left: 21mm; top: 95mm; }
+    .person { position: absolute; left: 21mm; top: 104mm; width: 173mm; max-height: 27mm; font-size: 24pt; line-height: 1.14; font-weight: 700; color: #10283c; overflow-wrap: anywhere; }
+    .course-label { position: absolute; left: 16mm; top: 138mm; }
+    .course { position: absolute; left: 16mm; top: 147mm; width: 146mm; max-height: 33mm; font-size: 16pt; line-height: 1.25; font-weight: 700; color: #224457; overflow-wrap: anywhere; }
+    .qr-box { position: absolute; right: 15mm; top: 143mm; width: 34mm; height: 34mm; border: .3mm solid #d9e2df; border-radius: 2.5mm; padding: 2mm; background: #fff; }
+    .qr-box img { display: block; width: 100%; height: 100%; }
+    .qr-label { position: absolute; right: 15mm; top: 179mm; width: 34mm; text-align: center; font-size: 6.4pt; color: #647984; }
+    .footer-rule { position: absolute; left: 16mm; top: 185mm; width: 183mm; border-top: .3mm solid #e1e9e8; }
+    .date { position: absolute; left: 16mm; top: 190mm; }
+    .number { position: absolute; left: 65mm; top: 190mm; }
+    .meta-label { font-size: 7pt; color: #70838b; letter-spacing: .7mm; }
+    .meta-value { margin-top: 1.3mm; font-size: 10pt; color: #173448; font-weight: 700; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="panel">
+      <div class="mark">ЦЧССРСБ</div>
+      <div class="mark-caption">ЦЕНТР ОБУЧЕНИЯ</div>
+      <div class="panel-rule"></div>
+      <div class="circle-a"></div><div class="circle-b"></div><div class="circle-c"></div><div class="circle-d"></div>
+      <div class="panel-bottom">ЦИФРОВОЙ СЕРТИФИКАТ</div>
+      <div class="panel-serial">CESDRR / {{ certificate.issued_date|date:'Y' }}</div>
+      <div class="panel-edge"></div>
+    </div>
+    <div class="content">
+      <div class="kicker">ПОДТВЕРЖДЕНИЕ ОБУЧЕНИЯ</div>
+      <div class="badge"><span class="badge-dot"></span> ПРОГРАММА ЗАВЕРШЕНА</div>
+      <div class="header-rule"></div>
+      <h1>Сертификат</h1>
+      <div class="lead">Выдан за успешное прохождение образовательной программы</div>
+      <div class="accent"></div>
+      <div class="person-label label">Участник</div>
+      <div class="person">{{ certificate.user.get_full_name|default:certificate.user.email }}</div>
+      <div class="course-label label">Программа обучения</div>
+      <div class="course">{{ certificate.course.title }}</div>
+      <div class="qr-box"><img src="data:image/png;base64,{{ qr_data }}" alt="QR-код проверки"></div>
+      <div class="qr-label">Проверить подлинность</div>
+      <div class="footer-rule"></div>
+      <div class="date"><div class="meta-label">ДАТА ВЫДАЧИ</div><div class="meta-value">{{ certificate.issued_date|date:'d.m.Y' }}</div></div>
+      <div class="number"><div class="meta-label">НОМЕР СЕРТИФИКАТА</div><div class="meta-value">{{ certificate.certificate_number }}</div></div>
+    </div>
+  </div>
+</body>
+</html>

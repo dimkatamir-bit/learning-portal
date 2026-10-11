@@ -1,0 +1,5 @@
+<div class="employee-course-progress">
+  <div class="employee-progress-caption"><strong>{{ summary.course.title }}</strong><span>{{ summary.percent }}%</span></div>
+  <div class="employee-progress-track" role="progressbar" aria-label="Пройденные модули курса {{ summary.course.title }}" aria-valuenow="{{ summary.percent }}" aria-valuemin="0" aria-valuemax="100"><div class="employee-progress-fill tone-{{ summary.tone }}" style="width:{{ summary.percent }}%"></div></div>
+  <p class="employee-progress-note">Сдано модулей: {{ summary.completed }} из {{ summary.total }} · {% if summary.next_module %}Следующий: {{ summary.next_module.order }}. {{ summary.next_module.title }}{% elif summary.final_passed %}Финальный экзамен сдан{% else %}Далее — финальный экзамен{% endif %}</p>
+</div>

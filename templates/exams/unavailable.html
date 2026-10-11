@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Тест пока недоступен · Learning Portal{% endblock %}
+{% block content %}
+<nav aria-label="Навигация" class="breadcrumb-line"><a href="{% url 'course_detail' exam.course_id %}">Программа курса</a><span aria-hidden="true">/</span><span>Проверка знаний</span></nav>
+<div class="card empty-state"><span class="empty-icon" aria-hidden="true">◇</span><h1 class="h3">Тест пока не готов</h1><p>Администратору нужно добавить вопросы и варианты ответов. Вернитесь к курсу позже.</p><a class="btn btn-primary" href="{% url 'course_detail' exam.course_id %}">Вернуться к курсу</a></div>
+{% endblock %}

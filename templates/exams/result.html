@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Результат теста · Learning Portal{% endblock %}
+{% block content %}
+<nav aria-label="Навигация" class="breadcrumb-line"><a href="{% url 'course_detail' exam.course_id %}">Программа курса</a><span aria-hidden="true">/</span><span>Результат</span></nav>
+<section class="card result-card {% if attempt.passed %}result-success{% else %}result-retry{% endif %}">
+  <div class="result-mark" aria-hidden="true">{% if attempt.passed %}✓{% else %}↻{% endif %}</div>
+  <span class="eyebrow text-primary">РЕЗУЛЬТАТ ПРОВЕРКИ</span>
+  <h1>{% if attempt.passed %}{% if exam.is_final %}Курс успешно завершён{% else %}Тест сдан!{% endif %}{% else %}Попробуйте ещё раз{% endif %}</h1>
+  <p class="result-lead">{% if attempt.passed %}Отлично, вы справились с проверкой знаний.{% else %}До проходного балла немного не хватило. Повторите материал и пройдите тест снова.{% endif %}</p>
+  <div class="score-panel"><div><span>Ваш результат</span><strong>{{ attempt.score }}%</strong></div><div><span>Проходной балл</span><strong>{{ exam.passing_score }}%</strong></div></div>
+  {% if certificate %}<div class="result-note">Сертификат № {{ certificate.certificate_number }} готов к скачиванию.</div>
+  {% elif certificate_error %}<div class="alert alert-warning text-start">Экзамен сдан, но PDF пока не создан. Проверьте настройку WeasyPrint и повторите выдачу.</div>{% endif %}
+  <div class="result-actions">
+    {% if certificate %}<a class="btn btn-primary btn-lg" href="{% url 'certificate_download' certificate.uuid %}">Скачать сертификат PDF</a>
+    {% elif certificate_error %}<form method="post" action="{% url 'certificate_retry' exam.course_id %}">{% csrf_token %}<button class="btn btn-primary btn-lg">Повторить выдачу сертификата</button></form>
+    {% elif not attempt.passed %}<a class="btn btn-primary btn-lg" href="{% url 'take_exam' exam.pk %}">Пройти тест повторно</a>{% endif %}
+    <a class="btn btn-outline-primary btn-lg" href="{% url 'course_detail' exam.course_id %}">{% if attempt.passed %}Продолжить обучение{% else %}Вернуться к курсу{% endif %}</a>
+  </div>
+</section>
+{% endblock %}

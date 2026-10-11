@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}{{ module.title }} · Learning Portal{% endblock %}
+{% block content %}
+<nav aria-label="Навигация" class="breadcrumb-line"><a href="{% url 'course_detail' module.course_id %}">Программа курса</a><span aria-hidden="true">/</span><span>Модуль {{ module.order }}</span></nav>
+<div class="row g-4">
+  <div class="col-lg-8">
+    <article class="card lesson-card">
+      <span class="eyebrow text-primary">МОДУЛЬ {{ module.order }}</span>
+      <h1 class="mt-2 mb-3">{{ module.title }}</h1>
+      <div class="lesson-divider"><span>01</span><strong>Материал урока</strong></div>
+      <div class="lesson-content">{{ module.content|linebreaks }}</div>
+      {% if module.video_url %}
+      <section class="lesson-video" aria-label="Видео к модулю">
+        <div class="lesson-divider"><span>02</span><strong>Видео к модулю{% if module.video_clip_seconds %} · {{ module.video_clip_seconds }} секунд{% endif %}</strong></div>
+        {% if '[ДЕМО]' in module.course.title %}<p class="text-muted">Ролик Simon’s Cat показывает, как выглядит видеоплеер. Учебный материал этого модуля — текст выше.</p>{% endif %}
+        {% if embed_url %}
+          <div class="video-shell" data-video-embed="{{ embed_url }}" data-clip-seconds="{{ module.video_clip_seconds }}" data-checkpoint="{% url 'video_checkpoint' module.pk %}" data-csrf="{{ csrf_token }}" data-watched="{% if video_watched %}yes{% else %}no{% endif %}"><button type="button" class="video-launch" aria-label="Включить видео YouTube"><span class="video-play" aria-hidden="true">▶</span><span>Включить видео</span></button></div>
+          <p class="small text-muted mt-2" id="video-status" aria-live="polite">{% if video_watched %}Видео просмотрено. Можете посмотреть его ещё раз.{% else %}Для доступа к тесту досмотрите видео до конца. Перемотка вперёд отключена.{% endif %}</p>
+          <p class="small text-muted">Если плеер недоступен, <a target="_blank" rel="noopener noreferrer" href="{{ module.video_url }}">проверьте видео на YouTube ↗</a>. Просмотр на YouTube вне сайта не засчитывается — обратитесь к администратору для замены ролика.</p>
+        {% else %}<p><a target="_blank" rel="noopener noreferrer" href="{{ module.video_url }}">Открыть видео ↗</a></p>{% endif %}
+      </section>
+      {% endif %}
+    </article>
+  </div>
+  <aside class="col-lg-4">
+    <div class="card side-card sticky-lg-top">
+      <span class="eyebrow text-primary">СЛЕДУЮЩИЙ ШАГ</span>
+      {% if progress.completed_at %}
+        <h2 class="h4 mt-2">Модуль пройден</h2><p class="text-muted">Тест сдан. Вы можете повторить материал.</p>
+        {% if next_module %}<a class="btn btn-primary" href="{% url 'module_detail' next_module.pk %}">Перейти к модулю {{ next_module.order }} →</a>
+        {% else %}<a class="btn btn-primary" href="{% url 'course_detail' module.course_id %}">К финальному экзамену →</a>{% endif %}
+      {% elif not video_watched %}
+        <h2 class="h4 mt-2">Досмотрите видео</h2><p class="text-muted">Запустите плеер на этой странице и досмотрите ролик до конца. После этого откроется следующий шаг.</p>
+        <button class="btn btn-primary w-100" disabled>Ожидаем окончания видео</button>
+      {% elif progress.content_completed_at %}
+        <h2 class="h4 mt-2">Пройдите тест</h2><p class="text-muted">Материал отмечен как изученный. Для открытия следующего модуля сдайте тест.</p>
+        {% if exam %}<a class="btn btn-primary" href="{% url 'take_exam' exam.pk %}">Начать тест →</a>{% else %}<p>Тест пока не добавлен.</p>{% endif %}
+      {% else %}
+        <h2 class="h4 mt-2">Изучите материал</h2><p class="text-muted">Прочитайте урок и посмотрите видео, если оно есть. Затем отметьте материал изученным.</p>
+        <form method="post" action="{% url 'complete_content' module.pk %}">{% csrf_token %}<button class="btn btn-primary w-100">Я изучил материал →</button></form>
+      {% endif %}
+    </div>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}<script>
+const shell = document.querySelector('[data-video-embed]');
+if (shell) {
+  const status = document.getElementById('video-status');
+  const clipSeconds = Number(shell.dataset.clipSeconds) || 0;
+  shell.querySelector('button').addEventListener('click', () => {
+    const iframe = document.createElement('iframe');
+    iframe.id = 'lesson-player';
+    iframe.title = 'Видео к модулю';
+    iframe.src = shell.dataset.videoEmbed + '?enablejsapi=1&origin=' + encodeURIComponent(window.location.origin) + '&controls=0&disablekb=1&playsinline=1';
+    if (clipSeconds) iframe.src += '&end=' + clipSeconds;
+    iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    shell.replaceChildren(iframe);
+    status.textContent = 'Загрузка видеоплеера…';
+    window.onYouTubeIframeAPIReady = () => {
+      let timer = null;
+      let pending = Promise.resolve();
+      let player;
+      function checkpoint(event) {
+        let position = player.getCurrentTime();
+        const duration = clipSeconds || player.getDuration();
+        if (clipSeconds && (position >= clipSeconds || (event === 'ended' && position >= clipSeconds - .35))) {
+          position = clipSeconds; event = 'ended';
+          if (timer) { clearInterval(timer); timer = null; }
+          player.pauseVideo();
+        }
+        pending = pending.then(async () => {
+          if (!duration) return;
+          const response = await fetch(shell.dataset.checkpoint, {
+            method:'POST', credentials:'same-origin',
+            headers:{'Content-Type':'application/json', 'X-CSRFToken':shell.dataset.csrf},
+            body:JSON.stringify({event, position, duration})
+          });
+          const result = await response.json();
+          if (!response.ok) {
+            if (Number.isFinite(result.position)) player.seekTo(result.position, true);
+            status.textContent = result.error || 'Ошибка проверки видео. Обновите страницу.';
+            return;
+          }
+          if (result.completed) {
+            if (shell.dataset.watched === 'no') {
+              status.textContent = 'Видео просмотрено. Открываем следующий шаг…';
+              window.location.reload();
+            } else status.textContent = 'Видео просмотрено.';
+          } else if (event === 'tick') {
+            status.textContent = 'Просмотрено примерно ' + result.position + ' сек. из ' + Math.ceil(duration) + ' сек.';
+          }
+        }).catch(() => {
+          player.pauseVideo();
+          status.textContent = 'Не удалось подтвердить просмотр. Проверьте соединение и обновите страницу.';
+        });
+      }
+      player = new YT.Player('lesson-player', {
+        events:{
+          onReady:event => event.target.playVideo(),
+          onError:() => { status.textContent = 'Видео недоступно для встраивания. Попросите администратора заменить ссылку.'; },
+          onStateChange:event => {
+            if (timer) { clearInterval(timer); timer = null; }
+            if (event.data === YT.PlayerState.PLAYING) {
+              checkpoint('tick'); timer = setInterval(() => checkpoint('tick'), 2000);
+            } else if (event.data === YT.PlayerState.ENDED) checkpoint('ended');
+          }
+        }
+      });
+    };
+    if (window.YT && window.YT.Player) window.onYouTubeIframeAPIReady();
+    else {
+      const script = document.createElement('script');
+      script.src = 'https://www.youtube.com/iframe_api';
+      script.onerror = () => { status.textContent = 'Не удалось загрузить YouTube. Проверьте подключение.'; };
+      document.head.appendChild(script);
+    }
+  }, {once:true});
+}
+</script>{% endblock %}
